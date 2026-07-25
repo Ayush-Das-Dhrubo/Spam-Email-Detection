@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Inbox Dashboard</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; 
+            background-color: #f8fafc; 
+            margin: 0; 
+            padding: 40px 20px; 
+            color: #1e293b; 
+        }
+        .container { 
+            max-width: 1300px; 
+            margin: 0 auto; 
+        }
+        header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 40px; 
+            border-bottom: 1px solid #e2e8f0; 
+            padding-bottom: 20px; 
+        }
+        header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            color: #0f172a;
+        }
+        .nav-btn { 
+            background-color: #007bff; 
+            color: white; 
+            padding: 12px 20px; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            font-size: 14px;
+            transition: background 0.2s ease;
+        }
+        .nav-btn:hover {
+            background-color: #0056b3;
+        }
+        .grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 40px; 
+        }
+        .column { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); 
+            height: 70vh; 
+            overflow-y: auto; 
+            border: 1px solid #f1f5f9;
+        }
+        .column-title { 
+            font-size: 22px; 
+            font-weight: 700; 
+            margin-bottom: 25px; 
+            padding-bottom: 12px; 
+            border-bottom: 2px solid #f1f5f9; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        .inbox-title { color: #16a34a; }
+        .spam-title { color: #dc2626; }
+        
+        .email-card { 
+            border: 1px solid #e2e8f0; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            border-radius: 8px; 
+            background-color: #ffffff; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .email-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        .email-text { 
+            font-size: 15px; 
+            line-height: 1.6; 
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            margin-bottom: 15px; 
+            color: #334155; 
+        }
+        .email-meta { 
+            font-size: 12px; 
+            color: #64748b; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 12px;
+        }
+        .badge { 
+            padding: 4px 10px; 
+            border-radius: 6px; 
+            font-weight: 600; 
+            color: white; 
+            font-size: 11px;
+        }
+        .badge-green { background-color: #16a34a; }
+        .badge-red { background-color: #dc2626; }
+        
+        .column::-webkit-scrollbar { width: 8px; }
+        .column::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .column::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h2>📬 Saved Classification Dashboard</h2>
+            <div style="display: flex; gap: 12px;">
+                <a href="/" class="nav-btn">← Back to Detector</a>
+                
+                <form action="/clear_history" method="POST" onsubmit="return confirm('Are you sure you want to delete all saved emails? This cannot be undone.');" style="display: inline;">
+                    <button type="submit" style="background-color: #ef4444; color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s ease;">
+                        🗑️ Clear History
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <div class="grid">
+            <div class="column">
+                <div class="column-title inbox-title">
+                    <span>📥 Primary Inbox (Ham)</span>
+                    <span style="background: #dcfce7; padding: 2px 10px; border-radius: 20px; font-size: 14px;">{{ inbox|length }}</span>
+                </div>
+                {% if not inbox %}
+                    <p style="color: #94a3b8; font-style: italic; text-align: center; margin-top: 40px;">No legitimate emails analyzed yet.</p>
+                {% endif %}
+                {% for email in inbox %}
+                <div class="email-card" style="border-left: 4px solid #16a34a;">
+                    <div class="email-text"><strong>Message Preview:</strong><br/>{{ email[1] }}</div>
+                    <div class="email-meta">
+                        <span>Analyzed: {{ email[3] }}</span>
+                        <span class="badge badge-green">Safe Score: {{ email[2] }}%</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="column">
+                <div class="column-title spam-title">
+                    <span>🚫 Junk Folder (Spam)</span>
+                    <span style="background: #fee2e2; padding: 2px 10px; border-radius: 20px; font-size: 14px;">{{ spam|length }}</span>
+                </div>
+                {% if not spam %}
+                    <p style="color: #94a3b8; font-style: italic; text-align: center; margin-top: 40px;">No spam threats flagged yet.</p>
+                {% endif %}
+                {% for email in spam %}
+                <div class="email-card" style="border-left: 4px solid #dc2626;">
+                    <div class="email-text"><strong>Flagged Content:</strong><br/>{{ email[1] }}</div>
+                    <div class="email-meta">
+                        <span>Flagged: {{ email[3] }}</span>
+                        <span class="badge badge-red">Threat Match: {{ email[2] }}%</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

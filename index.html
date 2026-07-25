@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spam Email Detection</title>
+    <link rel="icon" type="image/svg+xml" href="/static/spam-icon.svg">
+    <link rel="icon" type="image/png" href="/static/spam-icon.png">
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-layer"></div>
+    <div class="binary-bg" id="binaryBg"></div>
+    <div class="snowflakes" id="snowflakes"></div>
+    
+    <div class="container">
+        <h1 class="main-title">Spam Email Detection</h1>
+        <h2 class="title">
+            <span class="line1">Techno Main Salt Lake</span><br>
+            <span class="line2">(CSBS Department)</span>
+        </h2>
+
+        <form method="POST" enctype="multipart/form-data" id="emailForm">
+            <textarea id="emailText" name="email_text" placeholder="Enter your email text here or upload email text file...">{{ text }}</textarea>
+            
+            <div style="display: flex; gap: 15px; margin-bottom: 15px; width: 100%;">
+                <label for="emailFile" class="file-label" style="flex: 1; margin: 0; text-align: center; display: inline-block; cursor: pointer;">
+                    Click me to Upload .txt File
+                </label>
+                
+                <a href="/dashboard" class="dashboard-btn" style="flex: 1; display: inline-block; padding: 12px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px; text-align: center; box-sizing: border-box; font-family: 'Poppins', sans-serif; transition: opacity 0.2s;">
+                    📊 View Saved Inbox & Junk Folders
+                </a>
+            </div>
+            
+            <input type="file" id="emailFile" name="email_file" accept=".txt">
+            <button type="submit">Check</button>
+        </form>
+
+        {% if prediction %}
+            <div style="margin-top: 25px; padding: 20px; border-radius: 12px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.2); text-align: center; color: white; font-family: 'Poppins', sans-serif;">
+                {% if prediction == 'Spam' %}
+                    <h3 style="color: #ff4d4d; font-weight: bold; margin-bottom: 10px;">🚨 Prediction: SPAM</h3>
+                    <p style="margin-bottom: 15px; font-size: 14px;">This content matches hazardous spam or phishing markers.</p>
+                {% else %}
+                    <h3 style="color: #2be66e; font-weight: bold; margin-bottom: 10px;">✅ Prediction: NOT SPAM (HAM)</h3>
+                    <p style="margin-bottom: 15px; font-size: 14px;">Safe to process. No threat signatures found.</p>
+                {% endif %}
+                <p style="margin-bottom: 15px; font-size: 15px;">Confidence Score: <strong>{{ confidence }}%</strong></p>
+                
+                <a href="/download_pdf?text={{ text|urlencode }}&prediction={{ prediction|urlencode }}&confidence={{ confidence|urlencode }}" style="display: inline-block; padding: 10px 20px; background-color: #ffffff; color: #333; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px;">
+                    📥 Download PDF Report
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
